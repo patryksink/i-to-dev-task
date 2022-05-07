@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AdminController!{% endblock %}
+
+{% block body %}
+    <div>
+        <div class="d-flex mb-3">
+            <h1>User list:</h1>
+            <div class="align-self-center ms-auto">
+                <a href="{{ path('register') }}" class="btn btn-primary">Create</a>
+            </div>
+        </div>
+        {% if user is defined %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <th>{{ user.id }}</th>
+                            <th>{{ user.email }}</th>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">There is no users created yet</h5>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

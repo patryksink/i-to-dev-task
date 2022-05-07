@@ -27,6 +27,7 @@ security:
 
     access_control:
         - { path: ^/index, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/admin, roles: ROLE_ADMIN }
 
 when@test:
     security:
