@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {{ form_start(userForm) }}
+        <div class="row">
+            <div class="w-50 mx-auto">
+                <h1 class="h3 mb-3 font-weight-normal">{{ action_title }}</h1>
+                {% if not is_form_valid %}
+                    <div class="alert alert-danger">
+                        {{ form_errors(userForm) }}
+                        {{ form_errors(userForm.name) }}
+                        {{ form_errors(userForm.email) }}
+                        {{ form_errors(userForm.plainPassword.first) }}
+                    </div>
+                {% endif %}
+                <div class="mb-3">
+                    {{ form_label(userForm.name, 'Name', {'label_attr': {'class': 'mb-2'}}) }}
+                    {{ form_widget(userForm.name, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(userForm.email, 'Email', {'label_attr': {'class': 'mb-2'}}) }}
+                    {{ form_widget(userForm.email, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(userForm.plainPassword.first, 'Password', {'label_attr': {'class': 'mb-2'}}) }}
+                    {{ form_widget(userForm.plainPassword.first, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(userForm.plainPassword.second, 'Repeat password', {'label_attr': {'class': 'mb-2'}}) }}
+                    {{ form_widget(userForm.plainPassword.second, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    {{ form_end(userForm) }}
+{% endblock %}
