@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/admin', name: 'admin')]
 class AdminController extends AbstractController
 {
+    const ADMIN_ROUTE = 'admin';
     private EntityManagerInterface $entityManager;
     private UserPasswordHasherInterface $userPasswordHasher;
 
@@ -48,7 +49,7 @@ class AdminController extends AbstractController
         $this->entityManager->persist($response);
         $this->entityManager->flush();
 
-        return $this->redirectToRoute('admin');
+        return $this->redirectToRoute(self::ADMIN_ROUTE);
     }
 
     #[Route('/user/edit/{id}', name: '_user_edit')]
@@ -62,7 +63,16 @@ class AdminController extends AbstractController
 
         $this->entityManager->flush();
 
-        return $this->redirectToRoute('admin');
+        return $this->redirectToRoute(self::ADMIN_ROUTE);
+    }
+
+    #[Route('/user/delete/{id}', name: '_user_delete')]
+    public function deleteUser(User $user): Response
+    {
+        $this->entityManager->remove($user);
+        $this->entityManager->flush();
+
+        return $this->redirectToRoute(self::ADMIN_ROUTE);
     }
 
     private function getUserFromFormRequest(string $action_title, User $user, Request $request): User|Response
