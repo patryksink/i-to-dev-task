@@ -7,17 +7,26 @@ security:
             entity:
                 class: App\Entity\User
                 property: email
+        admins:
+            memory:
+                users:
+                    admin@gmail.com: { password: '$2y$13$uhWP/Hc2aTnSHLG2WpIWoOg7P46bV641b/nfzVqVkVbMBItaTV9DO', roles: [ 'ROLE_ADMIN' ] }
+        chain_provider:
+            chain:
+                providers: [admins, app_user_provider]
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
             lazy: true
-            provider: app_user_provider
+            provider: chain_provider
+            custom_authenticator: App\Security\LoginFormAuthenticator
+            logout:
+                path: logout
 
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/index, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
