@@ -16,6 +16,7 @@ class MainController extends AbstractController
         if(!$this->getUser()){
             return $this->redirectToRoute('login');
         }
+
         return $this->render('main/index.html.twig', [
             'controller_name' => 'MainController',
         ]);
