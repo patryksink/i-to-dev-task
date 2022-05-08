@@ -41,6 +41,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(min: 6, max: 4096, minMessage: 'Your password should be at least {{ limit }} characters', maxMessage: 'Your password should be not be longer than {{ limit }} characters')]
     private string $password;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserLogin::class, cascade: ['remove'])]
+    private Collection $userLogins;
+
+    public function __construct()
+    {
+        $this->userLogins = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;

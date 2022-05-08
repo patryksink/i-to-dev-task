@@ -16,7 +16,7 @@ class UserLogin
     #[ORM\Column(type: 'integer')]
     private ?int $id;
 
-    #[ORM\ManyToOne(targetEntity: User::class, cascade: ['remove'], inversedBy: 'userLogins')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userLogins')]
     private ?User $user;
 
     #[ORM\Column(type: 'datetime')]
