@@ -35,7 +35,6 @@ class PostPersistSubscriber implements EventSubscriber
         if ($entity instanceof User) {
             $this->emailVerifier->sendEmailConfirmation('verify_email', $entity,
             (new TemplatedEmail())
-                ->from(new Address('test@test.com', 'Test'))
                 ->to($entity->getEmail())
                 ->subject('Please Confirm your Email')
                 ->htmlTemplate('registration/confirmation_email.html.twig')
