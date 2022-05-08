@@ -9,8 +9,6 @@ use App\Security\EmailVerifier;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\Mime\Address;
 
 class PostPersistSubscriber implements EventSubscriber
 {
@@ -33,12 +31,7 @@ class PostPersistSubscriber implements EventSubscriber
         $entity = $args->getObject();
 
         if ($entity instanceof User) {
-            $this->emailVerifier->sendEmailConfirmation('verify_email', $entity,
-            (new TemplatedEmail())
-                ->to($entity->getEmail())
-                ->subject('Please Confirm your Email')
-                ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
+            $this->emailVerifier->sendEmailConfirmation($entity);
         }
     }
 }

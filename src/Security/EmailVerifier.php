@@ -22,8 +22,15 @@ class EmailVerifier
         $this->entityManager = $manager;
     }
 
-    public function sendEmailConfirmation(string $verifyEmailRouteName, UserInterface $user, TemplatedEmail $email): void
+    public function sendEmailConfirmation(UserInterface $user): void
     {
+        $verifyEmailRouteName = 'verify_email';
+
+        $email = (new TemplatedEmail())
+            ->to($user->getEmail())
+            ->subject('Please Confirm your Email')
+            ->htmlTemplate('registration/confirmation_email.html.twig');
+
         $signatureComponents = $this->verifyEmailHelper->generateSignature(
             $verifyEmailRouteName,
             $user->getId(),
