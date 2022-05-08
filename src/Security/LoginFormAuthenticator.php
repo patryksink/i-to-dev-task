@@ -6,6 +6,7 @@ namespace App\Security;
 
 use App\Entity\User;
 use App\Entity\UserLogin;
+use App\Repository\UserLoginRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -33,13 +34,15 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
     private EntityManagerInterface $entityManager;
     private Security $security;
     private UserRepository $userRepository;
+    private UserLoginRepository $userLoginRepository;
 
-    public function __construct(UrlGeneratorInterface $urlGenerator, EntityManagerInterface $entityManager, Security $security, UserRepository $userRepository)
+    public function __construct(UrlGeneratorInterface $urlGenerator, EntityManagerInterface $entityManager, Security $security, UserRepository $userRepository, UserLoginRepository $userLoginRepository)
     {
         $this->urlGenerator = $urlGenerator;
         $this->entityManager = $entityManager;
         $this->security = $security;
         $this->userRepository = $userRepository;
+        $this->userLoginRepository = $userLoginRepository;
     }
 
     public function authenticate(Request $request): Passport
@@ -49,7 +52,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         $request->getSession()->set(Security::LAST_USERNAME, $email);
 
         $user = $this->userRepository->findOneByEmail($email);
-        if($user){
+        if($user) {
             return new Passport(
                 new UserBadge($email),
                 new CustomCredentials(fn() => $user->isVerified(),$user),
@@ -70,11 +73,18 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        if(!$this->security->isGranted('ROLE_ADMIN')){
-            $userLogin = new UserLogin();
-
+        if(!$this->security->isGranted('ROLE_ADMIN')) {
             /** @var User $user */
             $user = $this->security->getUser();
+
+            $userLogins = $this->userLoginRepository->findByUser($user);
+            if($userLogins) {
+                foreach ($userLogins as $userLogin) {
+                    $this->entityManager->remove($userLogin);
+                }
+            }
+
+            $userLogin = new UserLogin();
             $userLogin->setUser($user);
 
             $this->entityManager->persist($userLogin);
