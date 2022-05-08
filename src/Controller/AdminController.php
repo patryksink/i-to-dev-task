@@ -27,7 +27,7 @@ class AdminController extends AbstractController
         $this->userPasswordHasher = $userPasswordHasher;
     }
 
-    #[Route('/', name: '')]
+    #[Route('', name: '')]
     public function index(UserRepository $userRepository): Response
     {
         $users = $userRepository->findAll();
