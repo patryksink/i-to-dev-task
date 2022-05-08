@@ -70,8 +70,8 @@ absolut path: src\Additional\Anagram
 
 Had some proplems with [MailerInterface](#https://symfony.com/doc/current/mailer.html)
 Mailer class object behaved like it should.
-What cannot be told about MailerInterface which seem like have not read .env because could established proper smtp
-Transport object for MailerInterface.
+What cannot be told about MailerInterface which seem like could not read .env file.
+The reason is that it could not establish proper smtp connection.
 > **NOTE:**
 > Code is written like in documentation using MailerInterface for sanity purposes.
 >
