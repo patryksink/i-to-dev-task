@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -40,6 +42,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string')]
     #[Assert\Length(min: 6, max: 4096, minMessage: 'Your password should be at least {{ limit }} characters', maxMessage: 'Your password should be not be longer than {{ limit }} characters')]
     private string $password;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $isVerified = false;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserLogin::class, cascade: ['remove'])]
     private Collection $userLogins;
@@ -112,5 +117,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials()
     {
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): self
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
     }
 }
