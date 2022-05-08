@@ -48,7 +48,7 @@ class AdminController extends AbstractController
 
         $response = $this->getUserFromForm('Register', $form, $user);
 
-        if($response instanceof Response){
+        if ($response instanceof Response) {
             return $response;
         }
         $user = $response;
@@ -78,7 +78,7 @@ class AdminController extends AbstractController
         $form = $this->getHandledForm($user, $request);
         $response = $this->getUserFromForm('Edit', $form, $user);
 
-        if($response instanceof Response){
+        if ($response instanceof Response) {
             return $response;
         }
 
@@ -103,7 +103,7 @@ class AdminController extends AbstractController
         return $form;
     }
 
-    private function getUserFromForm(string $action_title, FormInterface $form,  User $user): User|Response
+    private function getUserFromForm(string $action_title, FormInterface $form, User $user): User|Response
     {
         if (!$form->isSubmitted() || !$form->isValid()) {
             $isFormValid = !$form->isSubmitted() || $form->isValid();
