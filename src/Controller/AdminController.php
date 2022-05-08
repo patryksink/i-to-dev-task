@@ -41,7 +41,10 @@ class AdminController extends AbstractController
     public function addUser(Request $request): Response
     {
         $user = new User();
-        $response = $this->getUserFromFormRequest('Register', $user, $request);
+        $form = $this->getHandledForm($user, $request);
+
+        $response = $this->getUserFromForm('Register', $form, $user);
+
         if($response instanceof Response){
             return $response;
         }
@@ -55,7 +58,8 @@ class AdminController extends AbstractController
     #[Route('/user/edit/{id}', name: '_user_edit')]
     public function editUser(User $user, Request $request): Response
     {
-        $response = $this->getUserFromFormRequest('Edit', $user, $request);
+        $form = $this->getHandledForm($user, $request);
+        $response = $this->getUserFromForm('Edit', $form, $user);
 
         if($response instanceof Response){
             return $response;
@@ -75,11 +79,15 @@ class AdminController extends AbstractController
         return $this->redirectToRoute(self::ADMIN_ROUTE);
     }
 
-    private function getUserFromFormRequest(string $action_title, User $user, Request $request): User|Response
+    private function getHandledForm(User $user, Request $request): FormInterface
     {
         $form = $this->createForm(UserFormType::class, $user);
         $form->handleRequest($request);
+        return $form;
+    }
 
+    private function getUserFromForm(string $action_title, FormInterface $form,  User $user): User|Response
+    {
         if (!$form->isSubmitted() || !$form->isValid()) {
             $isFormValid = !$form->isSubmitted() || $form->isValid();
 
