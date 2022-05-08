@@ -6,8 +6,6 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -36,5 +34,19 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setPassword($newHashedPassword);
         $this->_em->persist($user);
         $this->_em->flush();
+    }
+
+    /**
+     * @return User[]
+     */
+    public function getUsersWhichExceedLoginTime(int $days): array
+    {
+        $qb = $this->createQueryBuilder('u');
+        $qb
+            ->join('u.userLogins', 'ul')
+            ->where('DATE_DIFF(CURRENT_DATE(), ul.createdAt) > :days')
+            ->setParameter('days', $days);
+
+        return $qb->getQuery()->getResult();
     }
 }
