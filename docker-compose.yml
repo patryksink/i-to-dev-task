@@ -6,7 +6,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - 3307:3306
+      - "3307:3306"
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: pma
@@ -18,4 +18,12 @@ services:
       PMA_ARBITRARY: 1
     restart: always
     ports:
-      - 8081:80
+      - "8081:80"
+  mailhog:
+    image: mailhog/mailhog
+    restart: always
+    logging:
+      driver: none
+    ports:
+      - "8025:8025"
+      - "1025:1025"
