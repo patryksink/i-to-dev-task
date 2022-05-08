@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Repository\UserRepository;
@@ -27,7 +29,7 @@ class InactiveUserMarkCommand extends Command
         $this->addArgument('days', InputArgument::OPTIONAL, 'Inactive day count in days', "30");
     }
 
-    public function __construct(string $name = null, UserRepository $userRepository, EntityManagerInterface $entityManager)
+    public function __construct(UserRepository $userRepository, EntityManagerInterface $entityManager, string $name = null)
     {
         $this->userRepository = $userRepository;
         $this->entityManager = $entityManager;
@@ -49,7 +51,7 @@ class InactiveUserMarkCommand extends Command
         }
 
         $this->entityManager->flush();
-        
+
         $output->writeln('Successfully marked inactive users');
         return Command::SUCCESS;
     }
