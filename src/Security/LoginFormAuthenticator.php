@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use App\Entity\User;
+use App\Entity\UserLogin;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,10 +28,14 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
     public const INDEX_ROUTE = 'index';
 
     private UrlGeneratorInterface $urlGenerator;
+    private EntityManagerInterface $entityManager;
+    private Security $security;
 
-    public function __construct(UrlGeneratorInterface $urlGenerator)
+    public function __construct(UrlGeneratorInterface $urlGenerator, EntityManagerInterface $entityManager, Security $security)
     {
         $this->urlGenerator = $urlGenerator;
+        $this->entityManager = $entityManager;
+        $this->security = $security;
     }
 
     public function authenticate(Request $request): Passport
@@ -48,6 +55,17 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        if(!$this->security->isGranted('ROLE_ADMIN')){
+            $userLogin = new UserLogin();
+
+            /** @var User $user */
+            $user = $this->security->getUser();
+            $userLogin->setUser($user);
+
+            $this->entityManager->persist($userLogin);
+            $this->entityManager->flush();
+        }
+
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
