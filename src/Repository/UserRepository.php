@@ -43,8 +43,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         $qb = $this->createQueryBuilder('u');
         $qb
-            ->join('u.userLogins', 'ul')
-            ->where('DATE_DIFF(CURRENT_DATE(), ul.createdAt) > :days')
+            ->where('DATE_DIFF(CURRENT_DATE(), u.loggedAt) > :days')
             ->setParameter('days', $days);
 
         return $qb->getQuery()->getResult();
