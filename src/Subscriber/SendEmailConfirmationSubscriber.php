@@ -18,14 +18,14 @@ class SendEmailConfirmationSubscriber implements EventSubscriberInterface
         $this->emailVerifier = $emailVerifier;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             UserCreatedEvent::class => 'sendEmail'
         ];
     }
 
-    public function sendEmail(UserCreatedEvent $event)
+    public function sendEmail(UserCreatedEvent $event): void
     {
         $user = $event->getUser();
         $plainPassword = $event->getPlainPassword();
