@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+#[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -46,16 +47,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean')]
     private bool $isVerified = false;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserLogin::class, cascade: ['remove'])]
-    private Collection $userLogins;
-
     #[ORM\Column(type: 'boolean')]
     private bool $isActive = true;
 
-    public function __construct()
-    {
-        $this->userLogins = new ArrayCollection();
-    }
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $loggedAt;
 
     public function getId(): ?int
     {
@@ -134,11 +130,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getUserLogins(): Collection
-    {
-        return $this->userLogins;
-    }
-
     public function getIsActive(): bool
     {
         return $this->isActive;
@@ -148,6 +139,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->isActive = $isActive;
 
+        return $this;
+    }
+
+    public function getLoggedAt(): ?\DateTimeInterface
+    {
+        return $this->loggedAt;
+    }
+
+    #[ORM\PrePersist]
+    public function setLoggedAt(): self
+    {
+        $this->loggedAt = new \DateTime();
         return $this;
     }
 }
