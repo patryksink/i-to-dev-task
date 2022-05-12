@@ -2,30 +2,27 @@
 
 namespace App\Tests\TestCase;
 
-use App\DoctrineSubscriber\PostPersistSubscriber;
 use App\Entity\User;
-use App\Entity\UserLogin;
+use App\Event\UserCreatedEvent;
 use App\Security\EmailVerifier;
-use Doctrine\ORM\Events;
-use Doctrine\Persistence\Event\LifecycleEventArgs;
+use App\Subscriber\SendEmailConfirmationSubscriber;
 use PHPUnit\Framework\TestCase;
 
 class PostPersistSubscriberTest extends TestCase
 {
-    private PostPersistSubscriber $subscriber;
+    private SendEmailConfirmationSubscriber $subscriber;
     private EmailVerifier $emailVerifier;
 
     public function setUp(): void
     {
         $this->emailVerifier = $this->createMock(EmailVerifier::class);
-        $this->subscriber = new PostPersistSubscriber($this->emailVerifier);
-
+        $this->subscriber = new SendEmailConfirmationSubscriber($this->emailVerifier);
     }
 
     public function testGetSubscribedEvents()
     {
         $expected = [
-            Events::postPersist => 'postPersist',
+            UserCreatedEvent::class => 'sendEmail'
         ];
 
         $actual = $this->subscriber->getSubscribedEvents();
@@ -33,29 +30,17 @@ class PostPersistSubscriberTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testSendUserEmailVerificationWithUser()
-    {
-        $user = $this->createMock(User::class);
-
-        $lifeCycleArgs = $this->createMock(LifecycleEventArgs::class);
-
-        $lifeCycleArgs->expects($this->once())->method('getObject')->willReturn($this->returnValue($user));
-
-        $this->emailVerifier->expects($this->once())->method('sendEmailConfirmation')->with($user);
-
-        $this->subscriber->postPersist($lifeCycleArgs);
-    }
-
     public function testSendUserEmailVerificationWithoutUser()
     {
-        $user = $this->createMock(UserLogin::class);
+        $event = $this->createMock(UserCreatedEvent::class);
 
-        $lifeCycleArgs = $this->createMock(LifecycleEventArgs::class);
+        $user = $this->createMock(User::class);
 
-        $lifeCycleArgs->expects($this->once())->method('getObject')->willReturn($this->returnValue($user));
+        $event->expects($this->once())->method('getUser')->willReturn($user);
+        $event->expects($this->once())->method('getPlainPassword')->willReturn('');
 
-        $this->emailVerifier->expects($this->never())->method('sendEmailConfirmation')->with($user);
+        $this->emailVerifier->expects($this->once())->method('sendEmailConfirmation')->with($user, '');
 
-        $this->subscriber->postPersist($lifeCycleArgs);
+        $this->subscriber->sendEmail($event);
     }
 }

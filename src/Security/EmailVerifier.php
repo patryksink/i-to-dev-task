@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +23,7 @@ class EmailVerifier
         $this->entityManager = $manager;
     }
 
-    public function sendEmailConfirmation(UserInterface $user): void
+    public function sendEmailConfirmation(User $user, string $plainPassword): void
     {
         $verifyEmailRouteName = 'verify_email';
 
@@ -41,6 +42,8 @@ class EmailVerifier
         $context['signedUrl'] = $signatureComponents->getSignedUrl();
         $context['expiresAtMessageKey'] = $signatureComponents->getExpirationMessageKey();
         $context['expiresAtMessageData'] = $signatureComponents->getExpirationMessageData();
+        $context['user_email'] = $user->getEmail();
+        $context['user_password'] = $plainPassword;
 
         $email->context($context);
 
