@@ -5,6 +5,11 @@
     <a href="{{ signedUrl }}">Confirm my Email</a>.
     This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
 </p>
+<h2>Login credentials</h2>
+<p>
+    Login: <b>{{ user_email }}</b><br>
+    Password: <b>{{ user_password }}</b><br>
+</p>
 
 <p>
     Cheers!

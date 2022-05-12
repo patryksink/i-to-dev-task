@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Event\UserCreatedEvent;
 use App\Form\UserFormType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -41,7 +41,7 @@ class AdminController extends AbstractController
     }
 
     #[Route('/user/add', name: '_user_add')]
-    public function addUser(Request $request, MailerInterface $mailer): Response
+    public function addUser(Request $request, EventDispatcherInterface $dispatcher): Response
     {
         $user = new User();
         $form = $this->getHandledForm($user, $request);
@@ -53,21 +53,13 @@ class AdminController extends AbstractController
         }
         $user = $response;
 
+        $planPassword = $form->get('plainPassword')->getData();
+
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $planPassword = $form->get('plainPassword')->getData();
+        $dispatcher->dispatch(new UserCreatedEvent($user, $planPassword));
 
-        $email = (new TemplatedEmail())
-            ->to($user->getEmail())
-            ->subject('Login credentials')
-            ->htmlTemplate('registration/login_credentials_email.html.twig')
-            ->context([
-                'user_email' => $user->getEmail(),
-                'user_password' => $planPassword
-            ]);
-
-        $mailer->send($email);
 
         return $this->redirectToRoute(self::ADMIN_ROUTE);
     }
