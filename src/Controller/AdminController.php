@@ -46,14 +46,24 @@ class AdminController extends AbstractController
         $user = new User();
         $form = $this->getHandledForm($user, $request);
 
-        $response = $this->getUserFromForm('Register', $form, $user);
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            $isFormValid = !$form->isSubmitted() || $form->isValid();
 
-        if ($response instanceof Response) {
-            return $response;
+            return $this->render('admin/user_form.twig', [
+                'userForm' => $form->createView(),
+                'is_form_valid' => $isFormValid,
+                'action_title' => 'Edit',
+            ]);
         }
-        $user = $response;
 
         $planPassword = $form->get('plainPassword')->getData();
+
+        $user->setPassword(
+            $this->userPasswordHasher->hashPassword(
+                $user,
+                $planPassword
+            )
+        );
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -68,11 +78,23 @@ class AdminController extends AbstractController
     public function editUser(User $user, Request $request): Response
     {
         $form = $this->getHandledForm($user, $request);
-        $response = $this->getUserFromForm('Edit', $form, $user);
 
-        if ($response instanceof Response) {
-            return $response;
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            $isFormValid = !$form->isSubmitted() || $form->isValid();
+
+            return $this->render('admin/user_form.twig', [
+                'userForm' => $form->createView(),
+                'is_form_valid' => $isFormValid,
+                'action_title' => 'Edit',
+            ]);
         }
+
+        $user->setPassword(
+            $this->userPasswordHasher->hashPassword(
+                $user,
+                $form->get('plainPassword')->getData()
+            )
+        );
 
         $this->entityManager->flush();
 
@@ -93,27 +115,5 @@ class AdminController extends AbstractController
         $form = $this->createForm(UserFormType::class, $user);
         $form->handleRequest($request);
         return $form;
-    }
-
-    private function getUserFromForm(string $action_title, FormInterface $form, User $user): User|Response
-    {
-        if (!$form->isSubmitted() || !$form->isValid()) {
-            $isFormValid = !$form->isSubmitted() || $form->isValid();
-
-            return $this->render('admin/user_form.twig', [
-                'userForm' => $form->createView(),
-                'is_form_valid' => $isFormValid,
-                'action_title' => $action_title,
-            ]);
-        }
-
-        $user->setPassword(
-            $this->userPasswordHasher->hashPassword(
-                $user,
-                $form->get('plainPassword')->getData()
-            )
-        );
-
-        return $user;
     }
 }
